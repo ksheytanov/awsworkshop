@@ -1,0 +1,39 @@
+---
+- name: Install Dependency Packages
+  apt:
+    pkg:
+    - ca-certificates
+    - curl
+    - gnupg
+    - lsb-release
+    state: latest
+    update_cache: true
+
+- name: Add Docker GPG Key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add Docker Repository
+  apt_repository:
+    repo: deb https://download.docker.com/linux/ubuntu focal stable
+    state: present
+
+- name: Install Docker
+  apt:
+    pkg: 
+    - docker-ce
+    - docker-ce-cli
+    - containerd.io
+    - docker-compose-plugin
+    state: latest
+    update_cache: true
+
+- name: Create the docker group
+  group: name=docker state=present
+
+- name: Add the vagrant user to Docker group
+  user: name=vagrant groups=docker append=yes
+
+- name: Enable and Start Docker Daemon
+  service: name=docker state=restarted enabled=yes

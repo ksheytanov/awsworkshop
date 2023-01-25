@@ -1,0 +1,7 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+  - include: ansible-tasks/add-packages.yaml
+  - include: ansible-tasks/docker.yaml
+  - include: ansible-tasks/aws-cli.yaml

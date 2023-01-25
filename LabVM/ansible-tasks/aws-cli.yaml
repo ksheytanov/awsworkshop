@@ -1,0 +1,38 @@
+---
+- name: Install Dependency Packages
+  apt:
+    pkg:
+    - unzip
+    state: latest
+    update_cache: true
+
+- name: Download AWS CLI installer
+  ansible.builtin.get_url:
+    url: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
+    dest: /tmp/awscliv2.zip
+  register: aws_cli_downloaded
+
+- name: Create Installer Dir
+  ansible.builtin.file:
+    path: /home/vagrant/aws-cli-installer
+    state: directory
+
+- name: Extract AWS CLI Installer
+  ansible.builtin.unarchive:
+    src: /tmp/awscliv2.zip
+    dest: /home/vagrant/aws-cli-installer
+  register: aws_cli_extracted
+  when: aws_cli_downloaded.changed
+
+- name: Install AWS CLI...
+  ansible.builtin.shell: 
+    cmd: /home/vagrant/aws-cli-installer/aws/install
+    creates: /usr/local/bin/aws
+  when: aws_cli_extracted.changed
+  register: aws_cli_installed
+
+- name: Cleanup...
+  ansible.builtin.file:
+    path: /tmp/awscliv2.zip
+    state: absent
+  when: aws_cli_installed
