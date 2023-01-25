@@ -1,0 +1,8 @@
+---
+- name: Install Additional Packages
+  apt:
+    pkg:
+    - git
+    - net-tools
+    state: latest
+    update_cache: true
