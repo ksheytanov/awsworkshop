@@ -1,8 +1,17 @@
+FORWARDED_PORTS_LIST={
+  # Guest -> Host
+  "8080" => 8080, # Web
+  "2375" => 2375, # Docker Daemon
+  "2376" => 2376  # Docker Daemon
+}
+
 Vagrant.configure("2") do |config|
     config.vm.box = "ubuntu/focal64"
     config.vm.hostname = "labvm.local"
     config.vm.synced_folder ".", "/vagrant"
-    config.vm.network "forwarded_port", guest: 8080, host: 8080
+    FORWARDED_PORTS_LIST.each do |guest, host|
+      config.vm.network "forwarded_port", guest: "#{guest}", host: "#{host}"
+    end
     config.vm.provider "virtualbox" do |v|
       v.name = "LabVM"
       v.customize ["modifyvm", :id, "--cpuexecutioncap", "75"]
