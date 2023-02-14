@@ -8,6 +8,7 @@ FORWARDED_PORTS_LIST={
 Vagrant.configure("2") do |config|
     config.vm.box = "ubuntu/focal64"
     config.vm.hostname = "labvm.local"
+    config.vm.box_download_insecure=true
     config.vm.synced_folder ".", "/vagrant"
     FORWARDED_PORTS_LIST.each do |guest, host|
       config.vm.network "forwarded_port", guest: "#{guest}", host: "#{host}"
