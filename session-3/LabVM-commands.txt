@@ -1,0 +1,44 @@
+# Clone this repo locally on the LabVM
+cd ~ && git clone https://github.com/ksheytanov/awsworkshop.git
+
+#Create Docker Network for game related containers
+docker network create hangman-network
+
+#Generate a random password for My SQL database
+export SQL_DB_PASS=$(cat /proc/sys/kernel/random/uuid | md5sum | head -c 10)
+
+#Display the password
+echo $SQL_DB_PASS
+
+#Start SQL container
+docker run \
+-p 3307:3306 \
+-e MYSQL_USER='ivanb' \
+-e MYSQL_PASSWORD=$SQL_DB_PASS \
+-e MYSQL_ROOT_PASSWORD=$SQL_DB_PASS \
+-e MYSQL_DATABASE='hangman-game-db' \
+--health-cmd '/usr/bin/mysql --user=root --password=$MYSQL_ROOT_PASSWORD --execute "SHOW DATABASES;"' \
+--health-interval 5s \
+--health-retries 10 \
+--health-start-period 60s \
+--health-timeout 20s \
+--network hangman-network \
+-d --name mysqldb mysql:latest 
+
+#Optional watch the container initilize. Interrupt with Ctrl+C
+watch -n1 docker ps
+
+# Make sure custom properties file is available at the expected location
+ll ~/awsworkshop/LabVM/hangman-config.yml
+
+#Run game container
+docker run \
+-p 8080:8080 \
+-e HANGMAN_APP_DB_USERNAME='ivanb' \
+-e HANGMAN_APP_DB_PASSWORD=$SQL_DB_PASS \
+-e HANGMAN_APP_DB_CONNECTIONSTRING='jdbc:mysql://mysqldb:3306/hangman-game-db' \
+-e MYSQL_CONTAINER_PORT=3306 \
+--network hangman-network \
+-v ~/awsworkshop/LabVM/hangman-config.yml:/application/hangman-config.yml \
+-d --name hangman-game-app \
+ivanbo97/hangman-game:latest --spring.config.location=file:///application/hangman-config.yml
