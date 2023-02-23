@@ -1,0 +1,14 @@
+# List Buckets
+aws s3api list-buckets --output table
+
+# List objects in a bucket:
+aws s3api list-objects --bucket <bucket-name> --output table
+
+# Put Object in a bucket
+#aws s3api put-object --bucket <bucket-name> --key <key> --body <path-to-file>
+aws s3api put-object --bucket awsworkshop-kaliobalio --key session-04/OBJECT-CLI-Kalin --body awsworkshop/README.md
+
+
+
+# Delete object from bucket:
+aws s3api delete-object --bucket awsworkshop-kaliobalio --key session-04/OBJECT-CLI-Kalin
