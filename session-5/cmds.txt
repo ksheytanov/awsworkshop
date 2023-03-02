@@ -1,0 +1,30 @@
+aws secretsmanager get-secret-value \
+--secret-id 'rds!db-e66a02b6-970a-47e0-8149-fa4658a45c2b'  \
+--version-stage AWSCURRENT --query SecretString --output text
+
+
+
+aws secretsmanager get-secret-value \
+--secret-id 'rds!db-e66a02b6-970a-47e0-8149-fa4658a45c2b'  \
+--version-stage AWSCURRENT --query SecretString --output text | jq -r .password
+
+export BESENICA_DB_USER=$(aws secretsmanager get-secret-value \
+--secret-id 'rds!db-e66a02b6-970a-47e0-8149-fa4658a45c2b'  \
+--version-stage AWSCURRENT --query SecretString --output text | jq -r .username)
+
+
+export BESENICA_DB_PASS=$(aws secretsmanager get-secret-value \
+--secret-id 'rds!db-e66a02b6-970a-47e0-8149-fa4658a45c2b'  \
+--version-stage AWSCURRENT --query SecretString --output text | jq -r .password)
+
+
+sudo docker run \
+-p 80:8080 \
+-e HANGMAN_APP_DB_USERNAME='adminsession5' \
+-e HANGMAN_APP_DB_PASSWORD='}Ly315c(k-)>aUzdR9Ij0b$-DbOj' \
+-e HANGMAN_APP_DB_CONNECTIONSTRING='jdbc:mysql://session5-besenica.catxg7qnzvor.eu-central-1.rds.amazonaws.com:3306/hangmandb' \
+-e MYSQL_CONTAINER_PORT=3306 \
+--network hangman-network \
+-v ~/awsworkshop/LabVM/hangman-config.yml:/application/hangman-config.yml \
+-d --name hangman-game-app \
+ivanbo97/hangman-game:latest --spring.config.location=file:///application/hangman-config.yml
